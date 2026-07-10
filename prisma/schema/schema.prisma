@@ -7,8 +7,8 @@ datasource db {
   provider = "postgresql"
 }
 
-model Test {
-  id        String   @id @default(cuid())
-  name      String
-  createdAt DateTime @default(now())
-}
+// model Test {
+//   id        String   @id @default(cuid())
+//   name      String
+//   createdAt DateTime @default(now())
+// }
