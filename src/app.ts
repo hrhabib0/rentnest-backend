@@ -4,6 +4,7 @@ import notFound from "./app/middlewares/notFound";
 import globalErrorHandler from "./app/middlewares/globalErrorHandler";
 import { authRoutes } from "./app/modules/auth/auth.route";
 import cookieParser from "cookie-parser";
+import { catergoryRoutes } from "./app/modules/category/category.route";
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/categories", catergoryRoutes);
 
 
 app.use(notFound);
