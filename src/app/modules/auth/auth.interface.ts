@@ -1,4 +1,4 @@
-import { UserRole } from "../../../../prisma/src/generated/prisma/enums";
+import { UserRole } from "../../../../generated/prisma/enums";
 
 export interface IRegisterUser {
     name: string;

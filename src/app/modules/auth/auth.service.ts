@@ -1,4 +1,3 @@
-import { UserRole } from "../../../../prisma/src/generated/prisma/enums";
 import { REGISTER_ALLOWED_ROLES } from "../../constants/auth.contants";
 import AppError from "../../errors/AppError";
 import { prisma } from "../../lib/prisma";

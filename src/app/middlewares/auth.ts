@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { UserRole, UserStatus } from "../../../prisma/src/generated/prisma/enums";
+import { UserRole, UserStatus } from "../../../generated/prisma/enums";
 import { catchAsync } from "../utils/catchAsync";
 import { jwtUtils } from "../utils/jwt";
 import config from "../config";
@@ -34,7 +34,7 @@ export const auth = (...requiredRoles: UserRole[]) => {
             );
         }
 
-        const { id, email, name, role } = verifiedToken.data as JwtPayload;
+        const { id, role } = verifiedToken.data as JwtPayload;
 
         const user = await prisma.user.findUnique({
             where: {
