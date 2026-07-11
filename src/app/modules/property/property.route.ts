@@ -26,4 +26,10 @@ router.patch(
     propertyController.updateProperty
 );
 
+router.delete(
+    "/properties/:id",
+    auth(UserRole.LANDLORD, UserRole.ADMIN),
+    propertyController.deleteProperty
+);
+
 export const propertyRotues = router;

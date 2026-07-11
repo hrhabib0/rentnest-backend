@@ -289,9 +289,47 @@ const updateProperty = async (
     return updatedProperty;
 };
 
+const deleteProperty = async (
+    id: string,
+    user: JwtPayload
+) => {
+    const property = await prisma.property.findUnique({
+        where: {
+            id
+        }
+    });
+
+    if (!property) {
+        throw new AppError(
+            httpStatus.NOT_FOUND,
+            "Property not found."
+        );
+    }
+
+    // Ownership check
+    if (
+        property.landlordId !== user.id &&
+        user.role !== UserRole.ADMIN
+    ) {
+        throw new AppError(
+            httpStatus.FORBIDDEN,
+            "You are not allowed to delete this property."
+        );
+    }
+
+    await prisma.property.delete({
+        where: {
+            id
+        }
+    });
+
+    return null;
+};
+
 export const propertyServices = {
     createProperty,
     getAllProperties,
     getPropertyById,
-    updateProperty
+    updateProperty,
+    deleteProperty,
 }
