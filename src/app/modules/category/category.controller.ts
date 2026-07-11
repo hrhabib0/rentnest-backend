@@ -1,12 +1,12 @@
 import { catchAsync } from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
-import { catergoryServices } from "./category.service";
+import { categoryServices } from "./category.service";
 import httpStatus from "http-status";
 
 const createCategory = catchAsync(
     async (req, res) => {
         const payload = req.body;
-        const result = await catergoryServices.createCategory(payload);
+        const result = await categoryServices.createCategory(payload);
         sendResponse(res, {
             success: true,
             statusCode: httpStatus.CREATED,
@@ -18,7 +18,7 @@ const createCategory = catchAsync(
 
 const getAllCategories = catchAsync(
     async (req, res) => {
-        const result = await catergoryServices.getAllCategories();
+        const result = await categoryServices.getAllCategories();
 
         sendResponse(res, {
             success: true,
@@ -29,7 +29,22 @@ const getAllCategories = catchAsync(
     }
 )
 
+const getCategoryById = catchAsync(
+    async (req, res) => {
+        const categoryId = req.params.categoryId
+        const result = await categoryServices.getCategoryById(categoryId as string);
+
+        sendResponse(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: "Category retrieved successfully",
+            data: result,
+        });
+    }
+)
+
 export const categoryController = {
     createCategory,
-    getAllCategories
+    getAllCategories,
+    getCategoryById
 }

@@ -7,5 +7,6 @@ const router = Router();
 
 router.post('/', auth(UserRole.ADMIN), categoryController.createCategory);
 router.get('/', categoryController.getAllCategories);
+router.get('/:categoryId', categoryController.getCategoryById)
 
 export const catergoryRoutes = router;
