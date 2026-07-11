@@ -3,6 +3,7 @@ import cors from "cors";
 import notFound from "./app/middlewares/notFound";
 import globalErrorHandler from "./app/middlewares/globalErrorHandler";
 import AppError from "./app/errors/AppError";
+import { authRoutes } from "./app/modules/auth/auth.route";
 
 const app = express();
 
@@ -16,9 +17,7 @@ app.get("/", (req, res) => {
     });
 });
 
-app.get("/test", (req, res) => {
-    throw new AppError(400, "This is a test error");
-});
+app.use("/api/auth", authRoutes);
 
 
 app.use(notFound);

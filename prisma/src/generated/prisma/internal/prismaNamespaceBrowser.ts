@@ -56,7 +56,6 @@ export const ModelName = {
   Property: 'Property',
   RentalRequest: 'RentalRequest',
   Review: 'Review',
-  Test: 'Test',
   User: 'User'
 } as const
 
@@ -145,15 +144,6 @@ export const ReviewScalarFieldEnum = {
 } as const
 
 export type ReviewScalarFieldEnum = (typeof ReviewScalarFieldEnum)[keyof typeof ReviewScalarFieldEnum]
-
-
-export const TestScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  createdAt: 'createdAt'
-} as const
-
-export type TestScalarFieldEnum = (typeof TestScalarFieldEnum)[keyof typeof TestScalarFieldEnum]
 
 
 export const UserScalarFieldEnum = {

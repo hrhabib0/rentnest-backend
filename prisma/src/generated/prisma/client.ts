@@ -67,11 +67,6 @@ export type RentalRequest = Prisma.RentalRequestModel
  */
 export type Review = Prisma.ReviewModel
 /**
- * Model Test
- * 
- */
-export type Test = Prisma.TestModel
-/**
  * Model User
  * 
  */
