@@ -15,4 +15,9 @@ router.get(
     propertyController.getAllProperties
 );
 
+router.get(
+    "/properties/:id",
+    propertyController.getPropertyById
+);
+
 export const propertyRotues = router;

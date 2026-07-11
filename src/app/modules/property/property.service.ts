@@ -181,7 +181,51 @@ const getAllProperties = async (query: Record<string, unknown>) => {
     };
 };
 
+const getPropertyById = async (id: string) => {
+    const property = await prisma.property.findUnique({
+        where: {
+            id
+        },
+        include: {
+            category: true,
+            landlord: {
+                omit: {
+                    password: true
+                }
+            },
+            reviews: {
+                include: {
+                   tenant : {
+                        omit: {
+                            password: true
+                        }
+                    }
+                },
+                orderBy: {
+                    createdAt: "desc"
+                }
+            },
+            _count: {
+                select: {
+                    reviews: true,
+                    rentalRequests: true
+                }
+            }
+        }
+    });
+
+    if (!property) {
+        throw new AppError(
+            httpStatus.NOT_FOUND,
+            "Property not found."
+        );
+    }
+
+    return property;
+};
+
 export const propertyServices = {
     createProperty,
-    getAllProperties
+    getAllProperties,
+    getPropertyById
 }
