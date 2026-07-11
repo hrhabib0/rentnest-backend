@@ -2,13 +2,15 @@ import express from "express";
 import cors from "cors";
 import notFound from "./app/middlewares/notFound";
 import globalErrorHandler from "./app/middlewares/globalErrorHandler";
-import AppError from "./app/errors/AppError";
 import { authRoutes } from "./app/modules/auth/auth.route";
+import cookieParser from "cookie-parser";
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 app.get("/", (req, res) => {
     res.send({
