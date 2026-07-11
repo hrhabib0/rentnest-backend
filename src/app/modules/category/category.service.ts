@@ -34,7 +34,24 @@ const createCategory = async (payload: ICreateCategory) => {
     return { category }
 }
 
+const getAllCategories = async () => {
+    const categories = await prisma.category.findMany({
+        orderBy: {
+            name: "asc"
+        },
+        include: {
+            _count: {
+                select: {
+                    properties: true
+                }
+            }
+        }
+    });
+    return categories;
+}
+
 
 export const catergoryServices = {
     createCategory,
+    getAllCategories
 }
