@@ -1,7 +1,9 @@
+import { JwtPayload } from "jsonwebtoken";
+import { UserRole } from "../../../../generated/prisma/enums";
 import { PrismaQueryBuilder } from "../../builder/prismaQueryBuilder";
 import AppError from "../../errors/AppError";
 import { prisma } from "../../lib/prisma";
-import { ICreateProperty } from "./property.interface";
+import { ICreateProperty, IUpdateProperty } from "./property.interface";
 import httpStatus from "http-status";
 
 
@@ -195,7 +197,7 @@ const getPropertyById = async (id: string) => {
             },
             reviews: {
                 include: {
-                   tenant : {
+                    tenant: {
                         omit: {
                             password: true
                         }
@@ -224,8 +226,72 @@ const getPropertyById = async (id: string) => {
     return property;
 };
 
+const updateProperty = async (
+    id: string,
+    payload: IUpdateProperty,
+    user: JwtPayload
+) => {
+    const property = await prisma.property.findUnique({
+        where: {
+            id
+        }
+    });
+
+    if (!property) {
+        throw new AppError(
+            httpStatus.NOT_FOUND,
+            "Property not found."
+        );
+    }
+
+    // Ownership check
+    if (
+        property.landlordId !== user.id &&
+        user.role !== UserRole.ADMIN
+    ) {
+        throw new AppError(
+            httpStatus.FORBIDDEN,
+            "You are not allowed to update this property."
+        );
+    }
+
+    // Validate category if changing it
+    if (payload.categoryId) {
+        const category = await prisma.category.findUnique({
+            where: {
+                id: payload.categoryId
+            }
+        });
+
+        if (!category) {
+            throw new AppError(
+                httpStatus.NOT_FOUND,
+                "Category not found."
+            );
+        }
+    }
+
+    const updatedProperty = await prisma.property.update({
+        where: {
+            id
+        },
+        data: payload,
+        include: {
+            category: true,
+            landlord: {
+                omit: {
+                    password: true
+                }
+            }
+        }
+    });
+
+    return updatedProperty;
+};
+
 export const propertyServices = {
     createProperty,
     getAllProperties,
-    getPropertyById
+    getPropertyById,
+    updateProperty
 }

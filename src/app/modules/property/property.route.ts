@@ -20,4 +20,10 @@ router.get(
     propertyController.getPropertyById
 );
 
+router.patch(
+    "/properties/:id",
+    auth(UserRole.LANDLORD, UserRole.ADMIN),
+    propertyController.updateProperty
+);
+
 export const propertyRotues = router;
