@@ -1,20 +1,27 @@
 import { Response } from "express";
 
 interface IResponse<T> {
-    statusCode: number;
     success: boolean;
-    message?: string;
+    statusCode: number;
+    message: string;
     data?: T;
+    meta?: {
+        page: number;
+        limit: number;
+        total: number;
+        totalPages: number;
+    };
 }
 
 const sendResponse = <T>(res: Response, payload: IResponse<T>) => {
-    const { statusCode, success, message, data } = payload;
+    const { statusCode, success, message, data, meta } = payload;
 
     res.status(statusCode).json({
         success,
         statusCode,
         message,
-        data,
+        meta,
+        data
     });
 };
 

@@ -1,3 +1,4 @@
+import { PrismaQueryBuilder } from "../../builder/prismaQueryBuilder";
 import AppError from "../../errors/AppError";
 import { prisma } from "../../lib/prisma";
 import { ICreateProperty } from "./property.interface";
@@ -124,6 +125,63 @@ const createProperty = async (
     return property;
 };
 
+const getAllProperties = async (query: Record<string, unknown>) => {
+    const builder = new PrismaQueryBuilder(query)
+        .search(["title", "city", "address"])
+        .filter([
+            "city",
+            "status",
+            "categoryId",
+            "bedrooms",
+            "bathrooms"
+        ])
+        .priceRange()
+        .sort([
+            "createdAt",
+            "monthlyRent",
+            "city",
+            "bedrooms",
+            "bathrooms"
+        ])
+        .paginate();
+
+    const properties = await prisma.property.findMany({
+        where: builder.where,
+        orderBy: builder.orderBy,
+        skip: builder.skip,
+        take: builder.take,
+        include: {
+            category: true,
+            landlord: {
+                omit: {
+                    password: true
+                }
+            },
+            _count: {
+                select: {
+                    reviews: true,
+                    rentalRequests: true
+                }
+            }
+        }
+    });
+
+    const total = await prisma.property.count({
+        where: builder.where
+    });
+
+    return {
+        meta: {
+            page: builder.page,
+            limit: builder.limit,
+            total,
+            totalPages: Math.ceil(total / builder.limit)
+        },
+        data: properties
+    };
+};
+
 export const propertyServices = {
     createProperty,
+    getAllProperties
 }

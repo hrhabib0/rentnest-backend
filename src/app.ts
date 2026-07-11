@@ -24,7 +24,7 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/categories", catergoryRoutes);
 
-app.use('/api/landlord/properties', propertyRotues);
+app.use('/api', propertyRotues);
 
 
 app.use(notFound);

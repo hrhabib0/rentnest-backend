@@ -6,9 +6,13 @@ import { propertyController } from "./property.controller";
 const router = Router();
 
 router.post(
-    "/",
+    "/landlord/properties",
     auth(UserRole.LANDLORD),
     propertyController.createProperty
+);
+router.get(
+    "/properties",
+    propertyController.getAllProperties
 );
 
 export const propertyRotues = router;
