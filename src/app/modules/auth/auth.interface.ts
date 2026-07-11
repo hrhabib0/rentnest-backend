@@ -6,3 +6,8 @@ export interface IRegisterUser {
     password: string;
     role: UserRole;
 }
+
+export interface ILoginUser {
+    email: string;
+    password: string;
+}
