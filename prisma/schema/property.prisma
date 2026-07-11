@@ -3,6 +3,7 @@ model Property {
 
   title       String
   description String
+  size        Int?
 
   address     String
   city        String
@@ -11,7 +12,7 @@ model Property {
   bedrooms  Int
   bathrooms Int
 
-  imageUrl String
+  imageUrls String[]
 
   amenities String[]
 
