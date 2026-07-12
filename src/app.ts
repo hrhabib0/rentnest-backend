@@ -7,6 +7,7 @@ import cookieParser from "cookie-parser";
 import { catergoryRoutes } from "./app/modules/category/category.route";
 import { propertyRotues } from "./app/modules/property/property.route";
 import { rentalRequestRoutes } from "./app/modules/rentalRequest/rentalRequest.route";
+import { paymentRoutes } from "./app/modules/payment/payment.route";
 
 const app = express();
 
@@ -28,6 +29,8 @@ app.use("/api/categories", catergoryRoutes);
 app.use('/api', propertyRotues);
 
 app.use('/api/rental-requests', rentalRequestRoutes);
+
+app.use('/api/payments', paymentRoutes);
 
 
 app.use(notFound);
