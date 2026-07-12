@@ -6,6 +6,7 @@ import { authRoutes } from "./app/modules/auth/auth.route";
 import cookieParser from "cookie-parser";
 import { catergoryRoutes } from "./app/modules/category/category.route";
 import { propertyRotues } from "./app/modules/property/property.route";
+import { rentalRequestRoutes } from "./app/modules/rentalRequest/rentalRequest.route";
 
 const app = express();
 
@@ -25,6 +26,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/categories", catergoryRoutes);
 
 app.use('/api', propertyRotues);
+
+app.use('/api/rental-requests', rentalRequestRoutes);
 
 
 app.use(notFound);
