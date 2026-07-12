@@ -102,7 +102,49 @@ const createPaymentIntent = async (rentalRequestId: string, tenantId: string) =>
     };
 };
 
+const handleStripeWebhook = async (payload: Buffer, signature: string) => {
+
+    if (!signature) {
+        throw new AppError(
+            httpStatus.BAD_REQUEST,
+            "Stripe signature is missing."
+        );
+    }
+
+    const event = stripe.webhooks.constructEvent(
+        payload,
+        signature,
+        config.stripe_webhook_secret
+    );
+
+    switch (event.type) {
+        case "checkout.session.completed": {
+            const session = event.data.object;
+
+            await prisma.payment.update({
+                where: {
+                    transactionId: session.id,
+                },
+                data: {
+                    status: PaymentStatus.PAID,
+                    paidAt: new Date(),
+                },
+            });
+
+            break;
+        }
+
+        default:
+            console.log(`Unhandled event: ${event.type}`);
+    }
+
+    // res.status(200).json({
+    //     received: true,
+    // });
+};
+
 
 export const paymentServices = {
     createPaymentIntent,
+    handleStripeWebhook,
 }

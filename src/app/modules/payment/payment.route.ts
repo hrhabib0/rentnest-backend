@@ -11,6 +11,7 @@ router.post(
     auth(UserRole.TENANT),
     paymentController.createPaymentIntent
 );
+router.post('/webhook', paymentController.handleStripeWebhook);
 
 
 export const paymentRoutes = router;
