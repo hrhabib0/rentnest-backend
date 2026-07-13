@@ -1,5 +1,6 @@
+import { JwtPayload } from "jsonwebtoken";
 import { Prisma } from "../../../../generated/prisma/client";
-import { PaymentStatus, RentalRequestStatus } from "../../../../generated/prisma/enums";
+import { PaymentStatus, RentalRequestStatus, UserRole } from "../../../../generated/prisma/enums";
 import AppError from "../../errors/AppError";
 import { prisma } from "../../lib/prisma";
 import { ICreateReview, IUpdateReview } from "./review.interface"
@@ -222,9 +223,46 @@ const updateReview = async (
     return updatedReview;
 };
 
+const deleteReview = async (
+    reviewId: string,
+    user: JwtPayload
+) => {
+    const review = await prisma.review.findUnique({
+        where: {
+            id: reviewId,
+        },
+    });
+
+    if (!review) {
+        throw new AppError(
+            httpStatus.NOT_FOUND,
+            "Review not found."
+        );
+    }
+
+    if (
+        user.role !== UserRole.ADMIN &&
+        review.tenantId !== user.id
+    ) {
+        throw new AppError(
+            httpStatus.FORBIDDEN,
+            "You are not allowed to delete this review."
+        );
+    }
+
+    await prisma.review.delete({
+        where: {
+            id: reviewId,
+        },
+    });
+
+    return null;
+};
+
 
 export const reviewServices = {
     createReview,
     getReviewsByProperty,
     updateReview,
+    deleteReview,
 }
