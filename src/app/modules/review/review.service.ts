@@ -1,7 +1,8 @@
+import { Prisma } from "../../../../generated/prisma/client";
 import { PaymentStatus, RentalRequestStatus } from "../../../../generated/prisma/enums";
 import AppError from "../../errors/AppError";
 import { prisma } from "../../lib/prisma";
-import { ICreateReview } from "./review.interface"
+import { ICreateReview, IUpdateReview } from "./review.interface"
 import httpStatus from 'http-status';
 
 const createReview = async (payload: ICreateReview, tenantId: string) => {
@@ -101,7 +102,129 @@ const createReview = async (payload: ICreateReview, tenantId: string) => {
     return review;
 }
 
+const getReviewsByProperty = async (propertyId: string) => {
+    const property = await prisma.property.findUnique({
+        where: {
+            id: propertyId,
+        },
+    });
+
+    if (!property) {
+        throw new AppError(
+            httpStatus.NOT_FOUND,
+            "Property not found."
+        );
+    }
+
+    const reviews = await prisma.review.findMany({
+        where: {
+            propertyId,
+        },
+        include: {
+            tenant: {
+                omit: {
+                    password: true,
+                },
+            },
+        },
+        orderBy: {
+            createdAt: "desc",
+        },
+    });
+
+    const stats = await prisma.review.aggregate({
+        where: {
+            propertyId,
+        },
+        _avg: {
+            rating: true,
+        },
+        _count: {
+            rating: true,
+        },
+    });
+
+    return {
+        averageRating: stats._avg.rating ?? 0,
+        totalReviews: stats._count.rating,
+        reviews,
+    };
+};
+
+const updateReview = async (
+    reviewId: string,
+    payload: IUpdateReview,
+    tenantId: string
+) => {
+    const { rating, comment } = payload;
+
+    const review = await prisma.review.findUnique({
+        where: {
+            id: reviewId,
+        },
+    });
+
+    if (!review) {
+        throw new AppError(
+            httpStatus.NOT_FOUND,
+            "Review not found."
+        );
+    }
+
+    if (review.tenantId !== tenantId) {
+        throw new AppError(
+            httpStatus.FORBIDDEN,
+            "You are not allowed to update this review."
+        );
+    }
+
+    const updateData: Prisma.ReviewUpdateInput = {};
+
+    if (rating !== undefined) {
+        if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+            throw new AppError(
+                httpStatus.BAD_REQUEST,
+                "Rating must be an integer between 1 and 5."
+            );
+        }
+
+        updateData.rating = rating;
+    }
+
+    if (comment !== undefined) {
+        const trimmedComment = comment.trim();
+
+        if (!trimmedComment) {
+            throw new AppError(
+                httpStatus.BAD_REQUEST,
+                "Comment cannot be empty."
+            );
+        }
+
+        updateData.comment = trimmedComment;
+    }
+
+    const updatedReview = await prisma.review.update({
+        where: {
+            id: reviewId,
+        },
+        data: updateData,
+        include: {
+            tenant: {
+                omit: {
+                    password: true,
+                },
+            },
+            property: true,
+        },
+    });
+
+    return updatedReview;
+};
+
 
 export const reviewServices = {
     createReview,
+    getReviewsByProperty,
+    updateReview,
 }

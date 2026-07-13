@@ -21,7 +21,40 @@ const createReview = catchAsync(
     }
 );
 
+const getReviewsByProperty = catchAsync(
+    async (req: Request, res: Response) => {
+        const { propertyId } = req.params;
+        const result = await reviewServices.getReviewsByProperty(propertyId as string);
+
+        sendResponse(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: "Reviews Retrieve Successfully.",
+            data: result,
+        })
+    }
+)
+
+const updateReview = catchAsync(
+    async (req: Request, res: Response) => {
+        const result = await reviewServices.updateReview(
+            req.params.id as string,
+            req.body,
+            req.user!.id
+        );
+
+        sendResponse(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: "Review updated successfully.",
+            data: result,
+        });
+    }
+);
+
 
 export const reviewController = {
     createReview,
+    getReviewsByProperty,
+    updateReview,
 }

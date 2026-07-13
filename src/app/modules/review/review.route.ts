@@ -7,6 +7,8 @@ const router = Router();
 
 
 router.post("/", auth(UserRole.TENANT), reviewController.createReview);
+router.get('/property/:propertyId', reviewController.getReviewsByProperty);
+router.patch("/:id", auth(UserRole.TENANT), reviewController.updateReview);
 
 
 
