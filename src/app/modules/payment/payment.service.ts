@@ -4,6 +4,7 @@ import { prisma } from "../../lib/prisma";
 import httpStatus from "http-status";
 import { stripe } from "../../lib/stripe";
 import config from "../../config";
+import { PrismaQueryBuilder } from "../../builder/prismaQueryBuilder";
 
 const createPaymentIntent = async (rentalRequestId: string, tenantId: string) => {
     const rentalRequest = await prisma.rentalRequest.findUnique({
@@ -143,8 +144,111 @@ const handleStripeWebhook = async (payload: Buffer, signature: string) => {
     // });
 };
 
+const getMyPayments = async (tenantId: string, query: Record<string, unknown>) => {
+    const queryBuilder = new PrismaQueryBuilder(query)
+        .filter(["status"])
+        .sort(["createdAt", "paidAt", "amount"])
+        .paginate();
+
+    const where = {
+        ...queryBuilder.where,
+        rentalRequest: {
+            tenantId,
+        },
+    };
+
+    const [payments, total] = await prisma.$transaction([
+        prisma.payment.findMany({
+            where,
+            orderBy: queryBuilder.orderBy,
+            skip: queryBuilder.skip,
+            take: queryBuilder.take,
+            include: {
+                rentalRequest: {
+                    include: {
+                        property: {
+                            include: {
+                                category: true,
+                                landlord: {
+                                    omit: {
+                                        password: true,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        }),
+
+        prisma.payment.count({
+            where,
+        }),
+    ]);
+
+    return {
+        meta: {
+            page: queryBuilder.page,
+            limit: queryBuilder.take,
+            total,
+            totalPages: Math.ceil(total / queryBuilder.take),
+        },
+        data: payments,
+    };
+};
+
+const getPaymentById = async (
+    paymentId: string,
+    tenantId: string
+) => {
+    const payment = await prisma.payment.findUnique({
+        where: {
+            id: paymentId,
+        },
+        include: {
+            rentalRequest: {
+                include: {
+                    property: {
+                        include: {
+                            category: true,
+                            landlord: {
+                                omit: {
+                                    password: true,
+                                },
+                            },
+                        },
+                    },
+                    tenant: {
+                        omit: {
+                            password: true,
+                        },
+                    },
+                },
+            },
+        },
+    });
+
+    if (!payment) {
+        throw new AppError(
+            httpStatus.NOT_FOUND,
+            "Payment not found."
+        );
+    }
+
+    if (payment.rentalRequest.tenantId !== tenantId) {
+        throw new AppError(
+            httpStatus.FORBIDDEN,
+            "You are not authorized to access this payment."
+        );
+    }
+
+    return payment;
+};
+
 
 export const paymentServices = {
     createPaymentIntent,
     handleStripeWebhook,
+    getMyPayments,
+    getPaymentById,
 }

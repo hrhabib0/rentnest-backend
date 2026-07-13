@@ -12,6 +12,7 @@ router.post(
     paymentController.createPaymentIntent
 );
 router.post('/webhook', paymentController.handleStripeWebhook);
-
+router.get("/my-payments", auth(UserRole.TENANT), paymentController.getMyPayments);
+router.get("/:id", auth(UserRole.TENANT), paymentController.getPaymentById);
 
 export const paymentRoutes = router;

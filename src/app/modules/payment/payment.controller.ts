@@ -36,7 +36,42 @@ const handleStripeWebhook = catchAsync(
     }
 );
 
+const getMyPayments = catchAsync(
+    async (req: Request, res: Response) => {
+        const result = await paymentServices.getMyPayments(
+            req.user!.id,
+            req.query as Record<string, unknown>
+        );
+
+        sendResponse(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: "Payment history retrieved successfully.",
+            meta: result.meta,
+            data: result.data,
+        });
+    }
+);
+
+const getPaymentById = catchAsync(
+    async (req: Request, res: Response) => {
+        const result = await paymentServices.getPaymentById(
+            req.params.id as string,
+            req.user!.id
+        );
+
+        sendResponse(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: "Payment retrieved successfully.",
+            data: result,
+        });
+    }
+);
+
 export const paymentController = {
     createPaymentIntent,
     handleStripeWebhook,
+    getMyPayments,
+    getPaymentById,
 }
