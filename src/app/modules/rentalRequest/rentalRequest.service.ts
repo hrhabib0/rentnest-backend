@@ -1,4 +1,5 @@
-import { PropertyStatus, RentalRequestStatus } from "../../../../generated/prisma/enums";
+import { JwtPayload } from "jsonwebtoken";
+import { PropertyStatus, RentalRequestStatus, UserRole } from "../../../../generated/prisma/enums";
 import AppError from "../../errors/AppError";
 import { prisma } from "../../lib/prisma";
 import { ICreateRentalRequest, IUpdateRentalRequestStatus } from "./rentalRequest.interface";
@@ -220,9 +221,56 @@ const updateRentalRequestStatus = async (
     return result;
 };
 
+const getRentalRequestById = async (rentalRequestId: string, user: JwtPayload) => {
+    const rentalRequest = await prisma.rentalRequest.findUnique({
+        where: {
+            id: rentalRequestId,
+        },
+        include: {
+            tenant: {
+                omit: {
+                    password: true,
+                },
+            },
+            property: {
+                include: {
+                    landlord: {
+                        omit: {
+                            password: true,
+                        },
+                    },
+                    category: true,
+                },
+            },
+            payment: true,
+        },
+    });
+
+    if (!rentalRequest) {
+        throw new AppError(
+            httpStatus.NOT_FOUND,
+            "Rental request not found."
+        );
+    }
+
+    const isAdmin = user.role === UserRole.ADMIN;
+    const isTenant = rentalRequest.tenantId === user.id;
+    const isLandlord = rentalRequest.property.landlordId === user.id;
+
+    if (!isAdmin && !isTenant && !isLandlord) {
+        throw new AppError(
+            httpStatus.FORBIDDEN,
+            "You are not allowed to access this rental request."
+        );
+    }
+
+    return rentalRequest;
+};
+
 export const rentalRequestServices = {
     createRentalRequest,
     getMyRentalRequest,
     getReceivedRentalRequests,
     updateRentalRequestStatus,
+    getRentalRequestById,
 }

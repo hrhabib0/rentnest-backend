@@ -67,10 +67,28 @@ const updateRentalRequestStatus = catchAsync(
     }
 );
 
+const getRentalRequestById = catchAsync(
+    async (req: Request, res: Response) => {
+        const result =
+            await rentalRequestServices.getRentalRequestById(
+                req.params.id as string,
+                req.user!
+            );
+
+        sendResponse(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: "Rental request retrieved successfully.",
+            data: result,
+        });
+    }
+);
+
 
 export const rentalRequestController = {
     createRentalRequest,
     getMyRentalRequest,
     getReceivedRentalRequests,
-    updateRentalRequestStatus
+    updateRentalRequestStatus,
+    getRentalRequestById,
 }

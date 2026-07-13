@@ -20,4 +20,10 @@ router.patch(
     rentalRequestController.updateRentalRequestStatus
 );
 
+router.get(
+    "/:id",
+    auth(UserRole.TENANT, UserRole.LANDLORD, UserRole.ADMIN),
+    rentalRequestController.getRentalRequestById
+);
+
 export const rentalRequestRoutes = router;
