@@ -17,6 +17,7 @@ export class PrismaQueryBuilder {
             Math.max(Number(this.query.limit) || 10, 1),
             100
         );
+        this.page = page;
         this.skip = (page - 1) * limit;
         this.take = limit;
 
