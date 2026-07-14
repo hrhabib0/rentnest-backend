@@ -9,7 +9,7 @@ A robust and scalable backend API for **RentNest**, a rental property management
 > Add your deployed backend URL here
 
 ```
-https://backend-url.com
+https://rentnest-backend-green.vercel.app/
 ```
 
 ---
